@@ -6,11 +6,11 @@ import Security
 
 /// Simplest possible wrapper for keychain read/write. (Be aware that this **overwrites** any existing value for key when it writes, by design).
 
-class Keychain {
+public class Keychain {
     
-    /// Find and return a blob of data previously stored under `key` using this class's `write()` method. Returns nil if not found.
+    /// Find and return a blob of data previously stored under `key` using this class's `write()` method. Returns nil if not found. This is the primitive read method.
     
-    static func read(key: String) -> NSData? {
+    public static func read(key: String) -> NSData? {
         guard key != "" else {
             return nil; // because actually querying with empty string key returns something weird
         }
@@ -34,18 +34,9 @@ class Keychain {
     }
     
     
-    static func readString(key:String) -> String? {
-        if let data = read(key), stringValue = NSString(data: data, encoding: NSUTF8StringEncoding) {
-            return stringValue as String
-        } else {
-            return nil
-        }
-    }
+    /// Store `data` to the Keychain, under `key`, **overwriting** any existing value. Returns true on success, false on error. This is the primitive write method.
     
-    
-    /// Store `data` to the Keychain, under `key`, **overwriting** any existing value. Returns true on success, false on error.
-    
-    static func write(key: String, data: NSData) -> Bool {
+    public static func write(key: String, data: NSData) -> Bool {
         let query = [
             kSecClass as String       : kSecClassGenericPassword as String,
             kSecAttrAccount as String : key,
@@ -57,6 +48,28 @@ class Keychain {
         let status: OSStatus = SecItemAdd(query as CFDictionary, nil)
         
         return status == noErr
+    }
+    
+    
+    /// Convenience method to read a UTF-8 string.
+    
+    public static func readString(key: String) -> String? {
+        if let data = read(key), stringValue = NSString(data: data, encoding: NSUTF8StringEncoding) {
+            return stringValue as String
+        } else {
+            return nil
+        }
+    }
+    
+    
+    /// Convenience method to write a UTF-8 string.
+    
+    public static func writeString(key: String, string: String) -> Bool {
+        if let data = string.dataUsingEncoding(NSUTF8StringEncoding) {
+            return write(key, data: data)
+        } else {
+            return false
+        }
     }
     
 }

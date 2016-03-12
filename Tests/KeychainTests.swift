@@ -2,7 +2,7 @@
 
 import XCTest
 
-class KeychainTests: XCTestCase
+public class KeychainTests: XCTestCase
 {
     let key1 = "foo.bar.baz.mary.had.a.little.lamb.bro.and.its.fleece.was.red.white.and.blue"
     let key2 = "the.freedom.of.birds.is.an.insult.to.me"
@@ -34,6 +34,16 @@ class KeychainTests: XCTestCase
         Keychain.write(key1, data: NSData())
         let readData = Keychain.read(key1)
         XCTAssertEqual(readData, NSData())
+    }
+    
+    
+    func test_readString_and_writeString() {
+        let string1 = "foo bar baz", string2 = "The Humpty Dance is your chance to... what?"
+        
+        XCTAssert( Keychain.writeString(key1, string: string1) )
+        XCTAssert( Keychain.readString(key1) == string1 )
+        XCTAssert( Keychain.writeString(key1, string: string2) )
+        XCTAssert( Keychain.readString(key1) == string2 )
     }
     
 }
