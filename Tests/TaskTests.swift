@@ -45,13 +45,13 @@ public class TaskTests: XCTestCase {
     
 
     // This was once useful for debugging:
-        func test_whuuuut() {
-            for i in 1..<1000 {
-                test_fixForCase11DeadlockWithLargeOutput()
-                print("ugh \(i)")
-            }
-            
-        }
+    //    func test_whuuuut() {
+    //        for i in 1..<1000 {
+    //            test_fixForCase11DeadlockWithLargeOutput()
+    //            print("ugh \(i)")
+    //        }
+    //        
+    //    }
 
 
     func testBasic() {
