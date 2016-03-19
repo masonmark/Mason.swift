@@ -9,25 +9,19 @@ public class Mason {
     
     /// Make prettier strings for printing to console.
     
-    public class func stringify(what: Any?) -> String
-    {
-        if let str = what as? String
-        {
+    public class func stringify(what: Any?) -> String {
+        if let str = what as? String {
             return str
-        }
-        else
-        {
+        } else {
             return "\(what)"
         }
     }
 
 }
 
-public func todo(what: Any? = nil, function: String = #function, file: String = #file, line: Int = #line)
-{
+public func todo(what: Any? = nil, function: String = #function, file: String = #file, line: Int = #line) {
     var msg = "ℹ️ → TODO: "
-    if what != nil
-    {
+    if what != nil {
         msg += Mason.stringify(what)
     }
     
@@ -35,17 +29,14 @@ public func todo(what: Any? = nil, function: String = #function, file: String = 
 }
 
 
-public func log(what: Any? = nil, function: String = #function, file: String = #file, line: Int = #line)
-{
+public func log(what: Any? = nil, function: String = #function, file: String = #file, line: Int = #line) {
     var fileName = "UNKNOWN"
-    if let lastComponent = NSURL(fileURLWithPath: file).lastPathComponent
-    {
+    if let lastComponent = NSURL(fileURLWithPath: file).lastPathComponent {
         fileName = lastComponent
     }
     
     var msg = ""
-    if what != nil
-    {
+    if what != nil {
         msg += Mason.stringify(what)
         msg += "  —  "
     }
