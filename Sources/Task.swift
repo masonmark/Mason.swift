@@ -1,4 +1,4 @@
-//　SimpleTask.swift　Created by mason on 2016-03-19.　Copyright © 2016 MASONMARK.COM. All rights reserved.
+//　Task.swift　Created by mason on 2016-03-19.　Copyright © 2016 MASONMARK.COM. All rights reserved.
 
 
 #if os(OSX)
@@ -8,7 +8,7 @@ import Foundation
 
 /// A convenience struct containing the results of running a task.
 
-public struct SimpleTaskResult {
+public struct TaskResult {
     public let stdoutText: String
     public let stderrText: String
     public let terminationStatus: Int
@@ -31,7 +31,7 @@ public struct SimpleTaskResult {
 /// 
 /// Protecting aginst all this fuckery is beyond the scope of this class (and this lifetime), so... be careful! (And complain to Apple.)
     
-public class SimpleTask: CustomStringConvertible {
+public class Task: CustomStringConvertible {
     public var launchPath          =  "/bin/ls"
     public var cwd: String?        = nil
     public var arguments: [String] = []
@@ -80,10 +80,10 @@ public class SimpleTask: CustomStringConvertible {
 
     /// This convenience method is for when you just want to run an external command and get the results back. Use it like this:
     ///
-    ///     let results = SimpleTask.run("ping", arguments: ["-c", "10", "masonmark.com"])
+    ///     let results = Task.run("ping", arguments: ["-c", "10", "masonmark.com"])
     ///     print(results.stdoutText)
 
-    public static func run (launchPath: String, arguments: [String] = [], directory: String? = nil) -> SimpleTaskResult {
+    public static func run (launchPath: String, arguments: [String] = [], directory: String? = nil) -> TaskResult {
         let t = self.init()
         // Can't use convenience init because: "Constructing an object... with a metatype value must use a 'required' initializer."
         
@@ -92,7 +92,7 @@ public class SimpleTask: CustomStringConvertible {
         t.cwd        = directory
         t.launch()
         
-        return SimpleTaskResult(stdoutText: t.stdoutText, stderrText: t.stderrText, terminationStatus: t.terminationStatus)
+        return TaskResult(stdoutText: t.stdoutText, stderrText: t.stderrText, terminationStatus: t.terminationStatus)
     }
     
     
@@ -117,17 +117,17 @@ public class SimpleTask: CustomStringConvertible {
         let stdoutHandle    = stdoutPipe.fileHandleForReading
         let stderrHandle    = stderrPipe.fileHandleForReading
         
-        let dataQueue       = dispatch_queue_create("com.masonmark.Mason.swift.Task.readQueue", DISPATCH_QUEUE_SERIAL)
+        let dataReadQueue   = dispatch_queue_create("com.masonmark.Mason.swift.Task.readQueue", DISPATCH_QUEUE_SERIAL)
         
-        stdoutHandle.readabilityHandler = { /* [unowned self] */ (fh) in
-            dispatch_sync(dataQueue) {
+        stdoutHandle.readabilityHandler = { [unowned self] (fh) in
+            dispatch_sync(dataReadQueue) {
                 let data = fh.availableData
                 self.stdoutData.appendData(data)
             }
         }
         
-        stderrHandle.readabilityHandler = { /* [unowned self] */ (fh) in
-            dispatch_sync(dataQueue) {
+        stderrHandle.readabilityHandler = { [unowned self] (fh) in
+            dispatch_sync(dataReadQueue) {
                 let data = fh.availableData
                 self.stderrData.appendData(data)
             }
@@ -155,7 +155,7 @@ public class SimpleTask: CustomStringConvertible {
         
         // Mason 2016-03-19: Just confirmed in debugger that there may still be data waiting in the buffers; readabilityHandler apparently not guaranteed to exhaust data before NSTask exits running state. So:
         
-        dispatch_sync(dataQueue) {
+        dispatch_sync(dataReadQueue) {
             self.stdoutData.appendData(stdoutHandle.readDataToEndOfFile())
             self.stderrData.appendData(stderrHandle.readDataToEndOfFile())
         }
