@@ -1,4 +1,4 @@
-//　Task.swift　Created by mason on 2016-03-19.　Copyright © 2016 MASONMARK.COM. All rights reserved.
+//　TaskWrapper.swift　Created by mason on 2016-03-19.　Copyright © 2016 MASONMARK.COM. All rights reserved.
 
 
 #if os(OSX)
@@ -31,7 +31,7 @@ public struct TaskResult {
 /// 
 /// Protecting aginst all this fuckery is beyond the scope of this class (and this lifetime), so... be careful! (And complain to Apple.)
     
-public class Task: CustomStringConvertible {
+public class TaskWrapper: CustomStringConvertible {
     public var launchPath          =  "/bin/ls"
     public var cwd: String?        = nil
     public var arguments: [String] = []
@@ -39,7 +39,7 @@ public class Task: CustomStringConvertible {
     public var stderrData          = NSMutableData()
 
     public var stdoutText: String {
-        if let text = String(data: stdoutData, encoding: NSUTF8StringEncoding) {
+        if let text = String(data: stdoutData as Data, encoding: .utf8) {
             return text
         } else {
             return ""
@@ -47,14 +47,14 @@ public class Task: CustomStringConvertible {
     }
     
     public var stderrText: String {
-        if let text = String(data: stderrData, encoding: NSUTF8StringEncoding) {
+        if let text = String(data: stderrData as Data, encoding: .utf8) {
             return text
         } else {
             return ""
         }
     }
     
-    var task: NSTask = NSTask()
+    var task = Foundation.Task()
     
     
     /// The required initialize does nothing, so you must set up all the instance's values yourself.
@@ -80,10 +80,10 @@ public class Task: CustomStringConvertible {
 
     /// This convenience method is for when you just want to run an external command and get the results back. Use it like this:
     ///
-    ///     let results = Task.run("ping", arguments: ["-c", "10", "masonmark.com"])
+    ///     let results = TaskWrapper.run("ping", arguments: ["-c", "10", "masonmark.com"])
     ///     print(results.stdoutText)
 
-    public static func run (launchPath: String, arguments: [String] = [], directory: String? = nil) -> TaskResult {
+    public static func run (_ launchPath: String, arguments: [String] = [], directory: String? = nil) -> TaskResult {
         let t = self.init()
         // Can't use convenience init because: "Constructing an object... with a metatype value must use a 'required' initializer."
         
@@ -99,7 +99,7 @@ public class Task: CustomStringConvertible {
     /// Synchronously launch the underlying NSTask and wait for it to exit.
     
     public func launch() {
-        task = NSTask()
+        task = Foundation.Task()
         
         if let cwd = cwd {
             task.currentDirectoryPath = cwd
@@ -108,8 +108,8 @@ public class Task: CustomStringConvertible {
         task.launchPath     = launchPath
         task.arguments      = arguments
         
-        let stdoutPipe      = NSPipe()
-        let stderrPipe      = NSPipe()
+        let stdoutPipe      = Pipe()
+        let stderrPipe      = Pipe()
         
         task.standardOutput = stdoutPipe
         task.standardError  = stderrPipe
@@ -117,19 +117,21 @@ public class Task: CustomStringConvertible {
         let stdoutHandle    = stdoutPipe.fileHandleForReading
         let stderrHandle    = stderrPipe.fileHandleForReading
         
-        let dataReadQueue   = dispatch_queue_create("com.masonmark.Mason.swift.Task.readQueue", DISPATCH_QUEUE_SERIAL)
+        // WAS:         let dataReadQueue   = dispatch_queue_create("com.masonmark.Mason.swift.Task.readQueue", DISPATCH_QUEUE_SERIAL)
+        
+        let dataReadQueue   = DispatchQueue(label: "com.masonmark.Mason.swift.TaskWrapper.readQueue", qos: .default) // .serial, dropped between Swift 3b3 and b4?
         
         stdoutHandle.readabilityHandler = { [unowned self] (fh) in
-            dispatch_sync(dataReadQueue) {
+            dataReadQueue.sync {
                 let data = fh.availableData
-                self.stdoutData.appendData(data)
+                self.stdoutData.append(data)
             }
         }
         
         stderrHandle.readabilityHandler = { [unowned self] (fh) in
-            dispatch_sync(dataReadQueue) {
+            dataReadQueue.sync {
                 let data = fh.availableData
-                self.stderrData.appendData(data)
+                self.stderrData.append(data)
             }
         }
         
@@ -143,7 +145,7 @@ public class Task: CustomStringConvertible {
         
         task.launch()
         
-        while task.running {
+        while task.isRunning {
             // If you don't read here, buffers can fill up with a lot of output (> 8K?), and deadlock, where the normal
             // read methods block forever. But the readabilityHandler blocks we attached above will handle it, so here
             // we just wait for the task to end.
@@ -155,9 +157,9 @@ public class Task: CustomStringConvertible {
         
         // Mason 2016-03-19: Just confirmed in debugger that there may still be data waiting in the buffers; readabilityHandler apparently not guaranteed to exhaust data before NSTask exits running state. So:
         
-        dispatch_sync(dataReadQueue) {
-            self.stdoutData.appendData(stdoutHandle.readDataToEndOfFile())
-            self.stderrData.appendData(stderrHandle.readDataToEndOfFile())
+        dataReadQueue.sync {
+            self.stdoutData.append(stdoutHandle.readDataToEndOfFile())
+            self.stderrData.append(stderrHandle.readDataToEndOfFile())
         }
     }
     
@@ -171,7 +173,7 @@ public class Task: CustomStringConvertible {
     
     public var description: String {
         var result = ">>++++++++++++++++++++++++++++++++++++++++++++++++++++>>\n"
-        result    += "COMMAND: \(launchPath) \(arguments.joinWithSeparator(" "))\n"
+        result    += "COMMAND: \(launchPath) \(arguments.joined(separator: " "))\n"
         result    += "TERMINATION STATUS: \(terminationStatus)\n"
         result    += "STDOUT: \(stdoutText)\n"
         result    += "STDERR: \(stderrText)\n"

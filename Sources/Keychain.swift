@@ -10,7 +10,7 @@ public class Keychain {
     
     /// Find and return a blob of data previously stored under `key` using this class's `write()` method. Returns nil if not found. This is the primitive read method.
     
-    public static func read(key: String) -> NSData? {
+    public static func read(_ key: String) -> Data? {
         guard key != "" else {
             return nil; // because actually querying with empty string key returns something weird
         }
@@ -26,7 +26,7 @@ public class Keychain {
         let status = withUnsafeMutablePointer(&dataTypeRef) { SecItemCopyMatching(query, UnsafeMutablePointer($0)) }
         
         if status == errSecSuccess {
-            if let data = dataTypeRef as! NSData? {
+            if let data = dataTypeRef as! Data? {
                 return data
             }
         }
@@ -36,14 +36,26 @@ public class Keychain {
     
     /// Store `data` to the Keychain, under `key`, **overwriting** any existing value. Returns true on success, false on error. This is the primitive write method.
     
-    public static func write(key: String, data: NSData) -> Bool {
+    public static func write(_ key: String, data: Data) -> Bool {
         let query = [
             kSecClass as String       : kSecClassGenericPassword as String,
             kSecAttrAccount as String : key,
             kSecValueData as String   : data
         ]
         
-        SecItemDelete(query as CFDictionary)
+        let deleteResult = SecItemDelete(query as CFDictionary)
+        if deleteResult != noErr && deleteResult != errSecItemNotFound {
+            // not found is a normal occurence
+            
+            print("delete keychain item failed: \(deleteResult)")
+            #if os(OSX)
+                print(SecCopyErrorMessageString(deleteResult, nil))
+                // Mason 2016-04-18: I am seeing -25244 "Invalid attempt to change the owner of this item" during unit tests.
+                // Some debuggery reveals that this is because the SDK unit tests are being run by multiple different
+                // apps, but the tests use the same keychain keys. This is not something this simple Keychain wrapper supports.
+                // I fixed this in the tests by uniquing the keys per-app, but am leaving this note for posterity.
+            #endif
+        }
         
         let status: OSStatus = SecItemAdd(query as CFDictionary, nil)
         
@@ -51,10 +63,24 @@ public class Keychain {
     }
     
     
+    /// Delete the blob of data stored under `key`, if any.
+    
+    public static func delete(_ key: String) -> Bool {
+        let query = [
+            kSecClass as String       : kSecClassGenericPassword,
+            kSecAttrAccount as String : key
+        ]
+        
+        let status: OSStatus = SecItemDelete(query as CFDictionary)
+        
+        return status == noErr
+    }
+    
+    
     /// Convenience method to read a UTF-8 string.
     
-    public static func readString(key: String) -> String? {
-        if let data = read(key), stringValue = NSString(data: data, encoding: NSUTF8StringEncoding) {
+    public static func readString(_ key: String) -> String? {
+        if let data = read(key), let stringValue = String(data: data, encoding: .utf8) {
             return stringValue as String
         } else {
             return nil
@@ -64,8 +90,8 @@ public class Keychain {
     
     /// Convenience method to write a UTF-8 string.
     
-    public static func writeString(key: String, string: String) -> Bool {
-        if let data = string.dataUsingEncoding(NSUTF8StringEncoding) {
+    public static func writeString(_ key: String, string: String) -> Bool {
+        if let data = string.data(using: .utf8) {
             return write(key, data: data)
         } else {
             return false

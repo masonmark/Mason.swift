@@ -1,12 +1,12 @@
-// TaskTests.swift Created by mason on 2016-03-19. Copyright © 2016 MASONMARK.COM. All rights reserved.
+// TaskWrapperTests.swift Created by mason on 2016-03-19. Copyright © 2016 MASONMARK.COM. All rights reserved.
 
 import XCTest
 
 
-public class TaskTests: XCTestCase {
+public class TaskWrapperTests: XCTestCase {
 
     func test_fixForCase11DeadlockWithLargeOutput() {
-        // Mason 2016-03-19: This is actually a test for the old NakaharaTask class (a massively more complex NSTask wrapper than Task).
+        // Mason 2016-03-19: This is actually a test for the old NakaharaTask class (a massively more complex NSTask wrapper than TaskWrapper).
         
         // This was a regression test for a 2007 Obj-C bug (I think "Case 11" means we had just switched to Fogbugz and only had 11 bugs at that time?) involving filling up some buffers and deadlocking. Not sure how applicable it even is to this 2015 Swift version, but let's do it anyway.
         
@@ -15,19 +15,19 @@ public class TaskTests: XCTestCase {
         
         while testData.length < (1024 * 150) {
             let junk = "NAKAHARANAKAHARANAKAHARANAKAHARANAKAHARANAKAHARANAKAHARANAKAHARA"
-            testData.appendData(junk.dataUsingEncoding(NSUTF8StringEncoding)!)
+            testData.append(junk.data(using: .utf8)!)
             
             testString += junk
         }
         
-        let tmpPath = NSTemporaryDirectory() + "testFixForCase11DeadlockWithLargeOutput-" + NSUUID().UUIDString
+        let tmpPath = NSTemporaryDirectory() + "testFixForCase11DeadlockWithLargeOutput-" + NSUUID().uuidString
         
         XCTAssertTrue(tmpPath.characters.count > 20)
         
-        let wroteOK = testData.writeToFile(tmpPath, atomically: true)
+        let wroteOK = testData.write(toFile: tmpPath, atomically: true)
         XCTAssertTrue(wroteOK)
         
-        let t = Task("/bin/cat", arguments: [tmpPath], launch: false)
+        let t = TaskWrapper("/bin/cat", arguments: [tmpPath], launch: false)
         t.launch()
         
         XCTAssert(t.terminationStatus == 0)
@@ -55,8 +55,8 @@ public class TaskTests: XCTestCase {
 
 
     func testBasic() {
-        let good = Task("/bin/ls", arguments: ["/System"])
-        let bad  = Task("/bin/ls", arguments: ["/hgghj/gfhjffjh/ghfghfhj/hgfghj"])
+        let good = TaskWrapper("/bin/ls", arguments: ["/System"])
+        let bad  = TaskWrapper("/bin/ls", arguments: ["/hgghj/gfhjffjh/ghfghfhj/hgfghj"])
         
         good.launch()
         bad.launch()
@@ -71,12 +71,12 @@ public class TaskTests: XCTestCase {
     
     
     func testBasicII() {
-        let ok = Task.run("/bin/ls", arguments: ["/System"])
+        let ok = TaskWrapper.run("/bin/ls", arguments: ["/System"])
         XCTAssert(ok.stdoutText != "")
         XCTAssert(ok.stderrText == "")
         XCTAssert(ok.terminationStatus == 0)
 
-        let ng = Task.run("/bin/ls", arguments: ["/nope/nope/jshdfdjk"])
+        let ng = TaskWrapper.run("/bin/ls", arguments: ["/nope/nope/jshdfdjk"])
         XCTAssert(ng.stdoutText == "")
         XCTAssert(ng.stderrText != "")
         XCTAssert(ng.terminationStatus != 0)

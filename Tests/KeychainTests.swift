@@ -9,17 +9,17 @@ public class KeychainTests: XCTestCase
     
     
     func test_basic() {
-        let data1 = NSUUID().UUIDString.dataUsingEncoding(NSUTF8StringEncoding)!
-        let data2 = NSUUID().UUIDString.dataUsingEncoding(NSUTF8StringEncoding)!
+        let data1 = NSUUID().uuidString.data(using: .utf8)!
+        let data2 = NSUUID().uuidString.data(using: .utf8)!
         XCTAssertNotEqual(data1, data2) // just a sanity check, of course this is always true
         
-        Keychain.write(key1, data: data1)
+        _ = Keychain.write(key1, data: data1)
         XCTAssertEqual(Keychain.read(key1), data1)
         
-        Keychain.write(key2, data: data2)
+        _ = Keychain.write(key2, data: data2)
         XCTAssertEqual(Keychain.read(key2), data2)
         
-        XCTAssertNil(Keychain.read(NSUUID().UUIDString))
+        XCTAssertNil(Keychain.read(NSUUID().uuidString))
     }
     
     
@@ -31,7 +31,7 @@ public class KeychainTests: XCTestCase
     
     func test_write_empty_data() {
         // Can't think of any reason to do this in real life, but I wrote this test just to make sure it didn't crash or anything.
-        Keychain.write(key1, data: NSData())
+        _ = Keychain.write(key1, data: Data())
         let readData = Keychain.read(key1)
         XCTAssertEqual(readData, NSData())
     }

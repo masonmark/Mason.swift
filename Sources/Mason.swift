@@ -2,14 +2,14 @@ import Foundation
 
 public class Mason {
     
-    func fu(bro: String = "🌎") {
+    func fu(_ bro: String = "🌎") {
         print("F.U., \(bro).")
     }
     
     
     /// Make prettier strings for printing to console.
     
-    public class func stringify(what: Any?) -> String {
+    public class func stringify(_ what: Any?) -> String {
         if let str = what as? String {
             return str
         } else {
@@ -19,7 +19,7 @@ public class Mason {
 
 }
 
-public func todo(what: Any? = nil, function: String = #function, file: String = #file, line: Int = #line) {
+public func todo(_ what: Any? = nil, function: String = #function, file: String = #file, line: Int = #line) {
     var msg = "ℹ️ → TODO: "
     if what != nil {
         msg += Mason.stringify(what)
@@ -29,11 +29,8 @@ public func todo(what: Any? = nil, function: String = #function, file: String = 
 }
 
 
-public func log(what: Any? = nil, function: String = #function, file: String = #file, line: Int = #line) {
-    var fileName = "UNKNOWN"
-    if let lastComponent = NSURL(fileURLWithPath: file).lastPathComponent {
-        fileName = lastComponent
-    }
+public func log(_ what: Any? = nil, function: String = #function, file: String = #file, line: Int = #line) {
+    let fileName = URL(fileURLWithPath: file).lastPathComponent
     
     var msg = ""
     if what != nil {
