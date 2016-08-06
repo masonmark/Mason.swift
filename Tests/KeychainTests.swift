@@ -4,8 +4,17 @@ import XCTest
 
 public class KeychainTests: XCTestCase
 {
-    let key1 = "foo.bar.baz.mary.had.a.little.lamb.bro.and.its.fleece.was.red.white.and.blue"
-    let key2 = "the.freedom.of.birds.is.an.insult.to.me"
+    var appSpecificUniquePrefix: String {
+        return Bundle.main.bundleIdentifier ?? "test-precondition-failed-bro"
+    }
+    
+    var key1: String {
+        return appSpecificUniquePrefix + "-foo.bar.baz.mary.had.a.little.lamb.bro.and.its.fleece.was.red.white.and.blue";
+    }
+    
+    var key2: String {
+        return appSpecificUniquePrefix + "-the.freedom.of.birds.is.an.insult.to.me";
+    }
     
     
     func test_basic() {
