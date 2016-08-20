@@ -2,33 +2,40 @@
 
 import XCTest
 
-public class KeychainTests: XCTestCase
-{
-    var appSpecificUniquePrefix: String {
-        return Bundle.main.bundleIdentifier ?? "test-precondition-failed-bro"
+public class KeychainTests: XCTestCase {
+    
+    static var bundleId: String {
+        return Bundle.main.bundleIdentifier ?? "missing-bundle-id"
     }
     
-    var key1: String {
-        return appSpecificUniquePrefix + "-foo.bar.baz.mary.had.a.little.lamb.bro.and.its.fleece.was.red.white.and.blue";
-    }
-    
-    var key2: String {
-        return appSpecificUniquePrefix + "-the.freedom.of.birds.is.an.insult.to.me";
-    }
+    let key1 = "\(KeychainTests.bundleId).foo.bar.baz.test.key.for.KeychainTests"
+    let key2 = "\(KeychainTests.bundleId).the.freedom.of.birds.is.an.insult.to.me.KeychainTests"
     
     
     func test_basic() {
-        let data1 = NSUUID().uuidString.data(using: .utf8)!
-        let data2 = NSUUID().uuidString.data(using: .utf8)!
+        let data1 = UUID().uuidString.data(using: String.Encoding.utf8)!
+        let data2 = UUID().uuidString.data(using: String.Encoding.utf8)!
         XCTAssertNotEqual(data1, data2) // just a sanity check, of course this is always true
         
-        _ = Keychain.write(key1, data: data1)
+        var wroteOK = Keychain.write(key1, data: data1)
+        XCTAssertTrue(wroteOK)
         XCTAssertEqual(Keychain.read(key1), data1)
         
-        _ = Keychain.write(key2, data: data2)
+        wroteOK = Keychain.write(key2, data: data2)
+        XCTAssertTrue(wroteOK)
         XCTAssertEqual(Keychain.read(key2), data2)
         
-        XCTAssertNil(Keychain.read(NSUUID().uuidString))
+        XCTAssertNil(Keychain.read(UUID().uuidString))
+        
+        XCTAssertTrue( Keychain.delete(key1) )
+        XCTAssertNil( Keychain.read(key1) )
+        
+        XCTAssertNotNil( Keychain.read(key2) )
+        XCTAssertTrue( Keychain.delete(key2) )
+        XCTAssertNil( Keychain.read(key1) )
+        
+        XCTAssertFalse( Keychain.delete(key1) )
+        XCTAssertFalse( Keychain.delete(key2) )
     }
     
     
@@ -40,9 +47,11 @@ public class KeychainTests: XCTestCase
     
     func test_write_empty_data() {
         // Can't think of any reason to do this in real life, but I wrote this test just to make sure it didn't crash or anything.
+        // Mason 2016-04-10: Well, one reason might be that you haven't implemented a delete method, bro... :-P
+        
         _ = Keychain.write(key1, data: Data())
         let readData = Keychain.read(key1)
-        XCTAssertEqual(readData, NSData())
+        XCTAssertEqual(readData, Data())
     }
     
     
