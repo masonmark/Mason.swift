@@ -103,8 +103,13 @@ class Bug3293160Test: XCTestCase {
         ]
         for (ee, er) in zip(observees, observers) {
             
+            let nc  =  NotificationCenter.default
             let sel = #selector(Observer.receive(notification:))
-            NotificationCenter.default.addObserver(er, selector: sel, name: .masonTest, object: ee)
+            
+            nc.addObserver(er, selector: sel, name: .masonTest, object: ee)
+            nc.addObserver(forName: .masonTest, object: ee, queue: nil, using: { (notification) in
+                stats.recordBlockInvocation(notification: notification)
+            })
         }
         
         // Collect the unique identifiers from the Observee objects we are actually
@@ -202,6 +207,7 @@ class Bug3293160Test: XCTestCase {
         var allNotificationsSent: [String] = []
         var notificationsSentByObservedObjects: [String] = []
         var notificationsReceivedByObservers: [String] = []
+        var blockInvocations: [String] = []
         
         var identifiersByAddress: [String:Set<String>] = [:]
           // We want to get notifications for only the objects we observe (and not
@@ -236,7 +242,7 @@ class Bug3293160Test: XCTestCase {
             }
         }
         
-        func recordReceive(_ notification: NSNotification) {
+        func recordReceive(_ notification: Notification) {
             
             var identifier = "error bro no object"
             var objectAddress = "error no address"
@@ -254,6 +260,18 @@ class Bug3293160Test: XCTestCase {
             identifiersByAddress[objectAddress] = identifiersForThisAddress
         }
         
+        func recordBlockInvocation(notification: Notification) {
+            var identifier = "error bro no object"
+            var objectAddress = "error no address"
+            
+            if let object = notification.object as? Observee {
+                identifier = object.identifier
+                let p: UnsafeMutableRawPointer = Unmanaged.passUnretained(object).toOpaque()
+                objectAddress = "\(p)"
+            }
+            blockInvocations.append("\(identifier):\(objectAddress)")
+        }
+        
         var identifiesReceivedForEachObservedAddress: String {
             var result = ""
             for addr in addressesBeingObserved {
@@ -269,6 +287,7 @@ class Bug3293160Test: XCTestCase {
             return [
                 "",
                 "*** STATISTICS: ***",
+                "blockInvocations: \(blockInvocations.count)",
                 "allNotificationsSent.count: \(allNotificationsSent.count)",
                 "notificationsSentByObservedObjects.count: \(notificationsSentByObservedObjects.count)",
                 "notificationsReceivedByObservers.count: \(notificationsReceivedByObservers.count)",
@@ -308,7 +327,7 @@ class Bug3293160Test: XCTestCase {
     
     class Observer {
         
-        @objc func receive(notification: NSNotification) {
+        @objc func receive(notification: Notification) {
             Bug3293160Test.statistician.recordReceive(notification )
         }
     }
