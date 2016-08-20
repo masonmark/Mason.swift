@@ -54,7 +54,7 @@ public class TaskWrapper: CustomStringConvertible {
         }
     }
     
-    var task = Foundation.Task()
+    var task = Foundation.Process()
     
     
     /// The required initialize does nothing, so you must set up all the instance's values yourself.
@@ -99,7 +99,7 @@ public class TaskWrapper: CustomStringConvertible {
     /// Synchronously launch the underlying NSTask and wait for it to exit.
     
     public func launch() {
-        task = Foundation.Task()
+        task = Foundation.Process()
         
         if let cwd = cwd {
             task.currentDirectoryPath = cwd
