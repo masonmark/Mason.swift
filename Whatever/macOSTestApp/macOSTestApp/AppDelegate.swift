@@ -110,7 +110,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @IBAction func saveAction(_ sender: AnyObject?) {
         // Performs the save action for the application, which is to send the save: message to the application's managed object context. Any encountered errors are presented to the user.
         if !managedObjectContext.commitEditing() {
-            NSLog("\(NSStringFromClass(self.dynamicType)) unable to commit editing before saving")
+            NSLog("\(NSStringFromClass(type(of: self))) unable to commit editing before saving")
         }
         if managedObjectContext.hasChanges {
             do {
@@ -131,7 +131,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // Save changes in the application's managed object context before the application terminates.
         
         if !managedObjectContext.commitEditing() {
-            NSLog("\(NSStringFromClass(self.dynamicType)) unable to commit editing to terminate")
+            NSLog("\(NSStringFromClass(type(of: self))) unable to commit editing to terminate")
             return .terminateCancel
         }
         

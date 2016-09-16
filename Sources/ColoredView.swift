@@ -1,6 +1,6 @@
 #if os(macOS)
 
-// ColoredView.swift Created by mason on 2016-08-09.   Copyright © 2016 MASON MARK (.COM). All rights reserved.
+// ColoredView.swift Created by mason on 2016-08-09. Copyright © 2016 MASON MARK (.COM). All rights reserved.
 //
 // ...based on: // NakaharaColoredView.h Created by mason on 2007-01-17. And presumably, soon to featured on John Oliver's "How Is This Still A Thing" segment. But apparently it is: http://stackoverflow.com/questions/2962790/best-way-to-change-the-background-color-for-an-nsview (see the explicit warnings from Apple about not interacting with a view's layer directly... this old fashioned shit still works fine.
 
