@@ -1,18 +1,71 @@
-// NotificationTests.swift Created by mason on 2016-08-12. Copyright © 2016 MASON MARK (.COM). All rights reserved.
+// Bug3293160Tests.swift Created by mason on 2016-08-12. Copyright © 2016 MASON MARK (.COM). All rights reserved.
+
+// ABOUT THIS TEST
+//
+// This old test is disabled because:
+//
+//     a.) it takes 2-3 minutes to run, and
+//     b.) the issue it proves still exists is no longer relevant
+//
+// I wrote this test just to find out whether Apple had dealt with 
+// the problem described below in the decade since I discovered it.
+//
+// They have, in a way, by providing a different API, which makes it
+// easier to work around the general issue, which is "making sure all
+// observers of an object are removed before the observed object is
+// deallocated, to prevent spurious notifications from occurring at a
+// later time, when another object that posts the same notifications is
+// allocated at the same memory address as a previous one".
+//
+// So now we have ObserverRegistry, which solves the same problem using
+// the newer NotificationCenter APIs.
+//
+// So this test case is just a historical artifact, and it is disabled if
+// the constant below is less than 1_000_000. If for some reason running
+// this test is desire, change the value:
+
+let Bug3293160Test_SPURIOUS_NOTIFICATION_SEND_COUNT = 0
+
+// If you do change the above run this test, here is the result I got on 2016-09-16
+// with a value of 10_000_000:
+//
+//    *** STATISTICS: ***
+//
+//    blockInvocations: 35399
+//
+//    allNotificationsSent.count: 10004000
+//
+//    notificationsSentByObservedObjects.count: 4000
+//
+//    notificationsReceivedByObservers.count: 35399
+//
+//    number of identifiers received for each observed address:
+//
+//    0x0000620000043e40: 8196
+//    0x0000600000044d40: 6572
+//    0x0000600000043bd0: 16634
+//    *******************
+//
+// That result shows that the observers received a bunch of spurious
+// notifications; they wanted to get only 4000. (Mason 2016-09-16)
 
 import XCTest
 
-class Bug3293160Test: XCTestCase {
+class Bug3293160Tests: XCTestCase {
     
     static var statistician = Statistician()
     
     override func setUp() {
-        Bug3293160Test.statistician = Statistician()
+        Bug3293160Tests.statistician = Statistician()
           // reset stats before each test
     }
     
     
     func test_that_rdar_3293160_is_still_a_thing() {
+        
+        guard Bug3293160Test_SPURIOUS_NOTIFICATION_SEND_COUNT > 999_999 else {
+            return
+        }
         
         // This test case proves that we need to unregister our observer objects before the observed
         // objects are deallocated, or else our observer objects may receive spurious notifications 
@@ -84,7 +137,7 @@ class Bug3293160Test: XCTestCase {
         // wrote this test case to find out. (Spoiler alert: still necessary.)
         
 
-        let stats = Bug3293160Test.statistician
+        let stats = Bug3293160Tests.statistician
 
         // First, set up a group of Observee instances, and create a corresponding Observer
         // instance for each one. We will later destroy the observees, but will keep the observers
@@ -165,10 +218,10 @@ class Bug3293160Test: XCTestCase {
         XCTAssert(stats.notificationsReceivedByObservers.count == numberOfNotificationsSentByObservedObjects)
 
         
-        let expectedReceiveCount = Bug3293160Test.statistician.notificationsReceivedByObservers.count
+        let expectedReceiveCount = Bug3293160Tests.statistician.notificationsReceivedByObservers.count
         print("expectedReceiveCount: \(expectedReceiveCount)")
         
-        let spuriousNotificationCount = 10000 //_000
+        let spuriousNotificationCount = Bug3293160Test_SPURIOUS_NOTIFICATION_SEND_COUNT
         
         for _ in 1...spuriousNotificationCount {
             // The point here is to flood the world with Observee objects, so that we eventually allocate
@@ -309,15 +362,15 @@ class Bug3293160Test: XCTestCase {
         let identifier = UUID().uuidString
         
         init() {
-            Bug3293160Test.statistician.recordInit(self)
+            Bug3293160Tests.statistician.recordInit(self)
         }
         
         deinit {
-            Bug3293160Test.statistician.recordDeinit(self)
+            Bug3293160Tests.statistician.recordDeinit(self)
         }
         
         func notifyObservers() {
-            Bug3293160Test.statistician.recordSend(self)
+            Bug3293160Tests.statistician.recordSend(self)
             NotificationCenter.default.post(name: .masonTest, object: self)
         }
     }
@@ -328,7 +381,7 @@ class Bug3293160Test: XCTestCase {
     class Observer {
         
         @objc func receive(notification: Notification) {
-            Bug3293160Test.statistician.recordReceive(notification )
+            Bug3293160Tests.statistician.recordReceive(notification )
         }
     }
 
