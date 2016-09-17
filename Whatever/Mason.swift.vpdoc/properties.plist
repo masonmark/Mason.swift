@@ -15,27 +15,27 @@
 	<key>defaultUUID</key>
 	<string>6119985d-ebbb-4992-bfaa-89cdf4960ea0</string>
 	<key>expectedPageCount</key>
-	<integer>7</integer>
+	<integer>8</integer>
 	<key>localWebAccess</key>
 	<false/>
 	<key>openWindows</key>
 	<array>
 		<dict>
 			<key>displayUUID</key>
-			<string>25bde155-150e-43cd-8039-256b788d895e</string>
+			<string>6f355e57-4625-4533-8ac9-81b7102a500c</string>
 			<key>drawerOpen</key>
 			<false/>
 			<key>openUUIDProperties</key>
 			<array>
 				<dict>
 					<key>itemUUID</key>
-					<string>25bde155-150e-43cd-8039-256b788d895e</string>
+					<string>6f355e57-4625-4533-8ac9-81b7102a500c</string>
 					<key>rulerVisible</key>
 					<false/>
 					<key>selectedRange</key>
-					<string>{0, 0}</string>
+					<string>{329, 0}</string>
 					<key>visibleGlyphs</key>
-					<string>{1462, 3616}</string>
+					<string>{0, 409}</string>
 					<key>zoomScale</key>
 					<real>1</real>
 				</dict>
