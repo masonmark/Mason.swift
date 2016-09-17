@@ -1,5 +1,8 @@
 // Bug3293160Tests.swift Created by mason on 2016-08-12. Copyright © 2016 MASON MARK (.COM). All rights reserved.
 
+import XCTest
+@testable import Mason
+
 // ABOUT THIS TEST
 //
 // This old test is disabled because:

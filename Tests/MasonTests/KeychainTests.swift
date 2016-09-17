@@ -1,6 +1,7 @@
 //  KeychainTests.swift Created by mason on 2016-02-21. Copyright © 2016 masonmark.com. All rights reserved.
 
 import XCTest
+@testable import Mason
 
 public class KeychainTests: XCTestCase {
     

@@ -4,9 +4,11 @@ import PackageDescription
 
 let package = Package(
     name: "Mason",
-    targets: [],
-    dependencies: 
+    
+    dependencies:
     [
         //.Package(url: "https://github.com/apple/example-package-fisheryates.git", majorVersion: 1),
     ]
 )
+
+package.exclude = ["Whatever"]

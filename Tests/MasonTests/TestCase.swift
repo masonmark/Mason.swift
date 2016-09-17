@@ -3,6 +3,8 @@
 // ...based on FiveSpeedTestCase.h Created by mason on 2006-01-04.
 
 import XCTest
+@testable import Mason
+
 
 /// This is my test case base class. There are many like it, but this one is mine.
 

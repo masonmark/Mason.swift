@@ -1,6 +1,7 @@
 // TestCaseTests.swift Created by mason on 2016-08-15. Copyright © 2016 MASON MARK (.COM). All rights reserved.
 
 import XCTest
+@testable import Mason
 
 class TestCaseTests: TestCase {
  
