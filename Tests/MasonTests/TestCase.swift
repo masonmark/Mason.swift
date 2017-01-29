@@ -5,6 +5,8 @@
 import XCTest
 @testable import Mason
 
+import Foundation
+
 
 /// This is my test case base class. There are many like it, but this one is mine.
 
@@ -33,19 +35,12 @@ class TestCase: XCTestCase {
             die("internal test error: unable to find temp directory")
         }
         
-        let fm = FileManager.default
-        
-        var isDir: ObjCBool = ObjCBool(false)
-        
-        if !fm.fileExists(atPath: tempDirURL.path, isDirectory: &isDir) || !isDir.boolValue {
-            do {
-                try fm.createDirectory(at: tempDirURL, withIntermediateDirectories: true, attributes: nil)
-            } catch {
-                die("internal test error: unable to create temp directory")
-            }
+        do {
+            try FileManager.default.createDirectory(at: tempDirURL, withIntermediateDirectories: true, attributes: nil)
+              // (when withIntermediateDirectories is true, above call returns true if dir already exists)
+        } catch {
+            die("internal test error: unable to create temp directory")
         }
-        
-        
         return tempDirURL
     }
 

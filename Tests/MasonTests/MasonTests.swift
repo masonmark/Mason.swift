@@ -5,4 +5,17 @@ import XCTest
 
 class MasonTests: XCTestCase {
     
+    func test_basic() {
+        let mason = "awesome"
+        XCTAssert(mason == "awesome")
+    }
+}
+
+extension MasonTests {
+    
+    static var allTests : [(String, (MasonTests) -> () throws -> Void)] {
+        return [
+            ("test_basic", test_basic),
+        ]
+    }
 }

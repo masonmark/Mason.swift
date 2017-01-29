@@ -1,5 +1,7 @@
 // TextReplacer.swift Created by mason on 2016-08-15. Copyright © 2016 MASON MARK (.COM). All rights reserved.
 
+#if !os(Linux)
+
 import Foundation
 
 public class TextReplacer {
@@ -30,7 +32,7 @@ public class TextReplacer {
                     fileLevelErrors.append("could not get file type: \(fullURL.path)")
                     continue
                 }
-                let isRegularFile = wellThisIsntVeryConvenient as String == FileAttributeType.typeRegular.rawValue
+                let isRegularFile = wellThisIsntVeryConvenient == NSString(string: FileAttributeType.typeRegular.rawValue)
                   // putrescent rotting corpse of an API...
                 guard isRegularFile else {
                     continue
@@ -38,7 +40,7 @@ public class TextReplacer {
                 
                 // Whew! Now that we have navigated that horrid swamp of legacy runtime interop sewage, let's process our file!
                 
-                guard let original = try? String(contentsOf: fullURL) as NSString else {
+                guard let original = try? String(contentsOf: fullURL) else {
                     fileLevelErrors.append("could not read file: \(fullURL.path)")
                     continue
                 }
@@ -77,3 +79,5 @@ public class TextReplacer {
     public let matchAll: Filter = {(file: URL, contents: String) in return true }
 
 }
+
+#endif // !os(Linux)

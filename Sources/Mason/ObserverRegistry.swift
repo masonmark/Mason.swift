@@ -1,5 +1,7 @@
 // ObserverRegistry.swift Created by mason on 2016-09-16. Copyright © 2016 MASON MARK (.COM). All rights reserved.
 
+#if !os(Linux)
+
 import Foundation
 
 /// A helper class that an object can use to implement an API for observing it, via NotificationCenter, while making sure all its observers are deallocated when it is. (This prevents an observer object from potentially receiving spurious notifications in the future, after the object being observed is already long gone.)
@@ -38,3 +40,4 @@ class ObserverRegistry {
         
 }
 
+#endif // !os(Linux)

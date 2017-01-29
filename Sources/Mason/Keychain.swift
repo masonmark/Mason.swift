@@ -1,5 +1,7 @@
 // Keychain.swift Created by mason on 2016-02-21. Copyright © 2016 masonmark.com. All rights reserved.
 
+#if !os(Linux)
+    
 import Foundation
 import Security
 
@@ -137,7 +139,7 @@ open class Keychain {
         
         var errCodeDescription = ""
         #if os(OSX)
-            print(SecCopyErrorMessageString(errCode, nil))
+            print(SecCopyErrorMessageString(errCode, nil) ?? "SecCopyErrorMessageString() couldn't return the error message.")
         #endif
         
         
@@ -149,3 +151,5 @@ open class Keychain {
 }
 
 // Thanks, Obama: https://gist.github.com/jackreichert/414623731241c95f0e20
+
+#endif // !os(Linux)

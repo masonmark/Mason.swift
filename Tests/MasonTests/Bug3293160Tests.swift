@@ -1,5 +1,7 @@
 // Bug3293160Tests.swift Created by mason on 2016-08-12. Copyright © 2016 MASON MARK (.COM). All rights reserved.
 
+#if !os(Linux)
+
 import XCTest
 @testable import Mason
 
@@ -394,3 +396,5 @@ class Bug3293160Tests: XCTestCase {
 extension Notification.Name {
     static let masonTest = Notification.Name("masonTest")
 }
+
+#endif // !os(Linux)
