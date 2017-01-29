@@ -6,6 +6,7 @@ import XCTest
 
 XCTMain([
     testCase(MasonTests.allTests),
+    testCase(TaskWrapperTests.allTests),
     testCase(TestCaseTests.allTests),
     testCase(WastingTimeOnStackOverflowTests.allTests)
     ])
