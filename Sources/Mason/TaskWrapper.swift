@@ -22,6 +22,7 @@ public struct TaskResult {
     }
 }
 
+// FIXME: Mason 2017-02-13: The Linux version of Foundation has caught up and Task is renamed Process. Update this class's naming to match.
 
 /// A simple wrapper for NSTask, to synchronously run external commands.
 
@@ -32,20 +33,6 @@ public class TaskWrapper: CustomStringConvertible {
     public var arguments: [String] = []
     public var stdoutData          = Data()
     public var stderrData          = Data()
-    
-    
-    #if os(Linux)
-    /// The result of `TaskWrapper.Process` is equivalent to `Foundation.Task()` on Linux, and to `Foundation.Process()` on Apple platforms.
-    public static var Process: Foundation.Task {
-    return Foundation.Task()
-    }
-    #else
-    /// The result of `TaskWrapper.Process` is equivalent to `Foundation.Task()` on Linux, and to `Foundation.Process()` on Apple platforms.
-    public static var Process: Foundation.Process {
-        return Foundation.Process()
-    }
-    // Mason 2017-01-24: The swift-corelibs-foundation project is still raw and in flux, and the Task→Process renaming hasn't happened on Linux yet (as of Swift 3.0.2). Hence, this hack.
-    #endif
     
     
     public var stdoutText: String {
@@ -64,7 +51,7 @@ public class TaskWrapper: CustomStringConvertible {
         }
     }
     
-    var task = TaskWrapper.Process
+    var task = Foundation.Process()
     
     /// The required initialize does nothing, so you must set up all the instance's values yourself.
     
@@ -110,7 +97,7 @@ public class TaskWrapper: CustomStringConvertible {
     /// Synchronously launch the underlying NSTask and wait for it to exit.
     
     public func launch() {
-        task = TaskWrapper.Process
+        task = Foundation.Process()
         
         if let cwd = cwd {
             task.currentDirectoryPath = cwd
