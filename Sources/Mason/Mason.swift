@@ -13,7 +13,7 @@ public class Mason {
         if let str = what as? String {
             return str
         } else {
-            return "\(what)"
+            return "\(String(describing: what))"
         }
     }
 
