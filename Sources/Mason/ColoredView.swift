@@ -23,7 +23,7 @@ class ColoredView: NSView {
     
     override func draw(_ dirtyRect: NSRect) {
         backgroundColor.set()
-        NSRectFill(dirtyRect)
+        dirtyRect.fill()
     }
     
     override var isOpaque: Bool {

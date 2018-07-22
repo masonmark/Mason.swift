@@ -12,7 +12,7 @@ open class Keychain {
     
     /// Find and return a blob of data previously stored under `key` using this class's `write()` method. Returns nil if not found. This is the primitive read method.
     
-    open static func read(_ key: String) -> Data? {
+    public static func read(_ key: String) -> Data? {
         guard key != "" else {
             return nil; // because actually querying with empty string key returns something weird
         }
@@ -42,7 +42,7 @@ open class Keychain {
     
     /// Store `data` to the Keychain, under `key`, **overwriting** any existing value. Returns true on success, false on error. This is the primitive write method.
     
-    open static func write(_ key: String, data: Data) -> Bool {
+    public static func write(_ key: String, data: Data) -> Bool {
         let query: [String:Any] = [
             kSecClass as String       : kSecClassGenericPassword as String,
             kSecAttrAccount as String : key,
@@ -93,7 +93,7 @@ open class Keychain {
     
     /// Delete the blob of data stored under `key`, if any.
     
-    open static func delete(_ key: String) -> Bool {
+    public static func delete(_ key: String) -> Bool {
         let query: [String:Any] = [
             kSecClass as String       : kSecClassGenericPassword,
             kSecAttrAccount as String : key
@@ -111,7 +111,7 @@ open class Keychain {
     
     /// Convenience method to read a UTF-8 string.
     
-    open static func readString(_ key: String) -> String? {
+    public static func readString(_ key: String) -> String? {
         if let data = read(key), let stringValue = NSString(data: data, encoding: String.Encoding.utf8.rawValue) {
             return stringValue as String
         } else {
@@ -122,7 +122,7 @@ open class Keychain {
     
     /// Convenience method to write a UTF-8 string.
     
-    open static func writeString(_ key: String, string: String) -> Bool {
+    public static func writeString(_ key: String, string: String) -> Bool {
         if let data = string.data(using: String.Encoding.utf8) {
             return write(key, data: data)
         } else {
