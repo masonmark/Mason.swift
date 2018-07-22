@@ -1,7 +1,11 @@
 // TextReplacerTests.swift Created by mason on 2016-08-15. Copyright © 2016 MASON MARK (.COM). All rights reserved.
 
+#if !os(Linux)
+
 import XCTest
 @testable import Mason
+
+import Foundation
 
 class TextReplacerTests: TestCase {
     
@@ -92,3 +96,15 @@ class TextReplacerTests: TestCase {
     }
 
 }
+
+extension TextReplacerTests {
+    
+    static var allTests : [(String, (TextReplacerTests) -> () throws -> Void)] {
+        return [
+            ("test_basic", test_basic),
+            ("test_with_file_extension_filter", test_with_file_extension_filter),
+        ]
+    }
+}
+
+#endif // !os(Linux)

@@ -1,5 +1,7 @@
 // Keychain.swift Created by mason on 2016-02-21. Copyright © 2016 masonmark.com. All rights reserved.
 
+#if !os(Linux)
+    
 import Foundation
 import Security
 
@@ -55,7 +57,7 @@ open class Keychain {
             
             #if os(OSX)
                 let errMessage = SecCopyErrorMessageString(deleteResult, nil)
-                errorLogger(deleteResult, "error description: \(errMessage)")
+                errorLogger(deleteResult, "error description: \(String(describing: errMessage))")
                 
                 // Mason 2016-04-18: I am seeing -25244 "Invalid attempt to change the owner of this item" during unit tests.
                 // Some debuggery reveals that this is because the SDK unit tests are being run by multiple different
@@ -137,7 +139,7 @@ open class Keychain {
         
         var errCodeDescription = ""
         #if os(OSX)
-            print(SecCopyErrorMessageString(errCode, nil) ?? "(SecCopyErrorMessageString() could not return the error message)")
+            print(SecCopyErrorMessageString(errCode, nil) ?? "SecCopyErrorMessageString() couldn't return the error message.")
         #endif
         
         
@@ -149,3 +151,5 @@ open class Keychain {
 }
 
 // Thanks, Obama: https://gist.github.com/jackreichert/414623731241c95f0e20
+
+#endif // !os(Linux)

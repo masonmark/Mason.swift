@@ -1,5 +1,7 @@
 // ObserverRegistryTests.swift Created by mason on 2016-09-16. Copyright © 2016 MASON MARK (.COM). All rights reserved.
 
+#if !os(Linux)
+
 import XCTest
 @testable import Mason
 
@@ -79,3 +81,5 @@ extension Notification.Name {
     static let barObserverRegistryTestsNotification = Notification.Name("barObserverRegistryTestsNotification")
     static let bazObserverRegistryTestsNotification = Notification.Name("bazObserverRegistryTestsNotification")
 }
+
+#endif // !os(Linux)
